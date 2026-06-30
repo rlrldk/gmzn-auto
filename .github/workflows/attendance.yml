@@ -2,8 +2,7 @@ name: GAMEZONE 자동 출석
 
 on:
   schedule:
-    - cron: "10 15 * * *"
-    - cron: "10 0 * * *"
+    - cron: "10 15 * * *"   # 매일 KST 00:10 에 1회
   workflow_dispatch: {}
 
 permissions:
@@ -24,17 +23,10 @@ jobs:
       - name: 의존성 설치
         run: pip install -r requirements.txt
 
-      - name: 출석 실행 (계정 1)
+      - name: 출석 실행
         env:
           GAMEZONE_ID: ${{ secrets.GAMEZONE_ID }}
           GAMEZONE_PW: ${{ secrets.GAMEZONE_PW }}
-        run: python attend.py
-
-      - name: 출석 실행 (계정 2)
-        if: always()
-        env:
-          GAMEZONE_ID: ${{ secrets.GAMEZONE_ID2 }}
-          GAMEZONE_PW: ${{ secrets.GAMEZONE_PW2 }}
         run: python attend.py
 
       - name: Keep-alive 커밋
