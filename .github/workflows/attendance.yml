@@ -2,11 +2,12 @@ name: GAMEZONE 자동 출석
 
 on:
   schedule:
-    # GitHub Actions cron 은 UTC 기준이다. (KST = UTC + 9)
-    # 아래는 매일 KST 00:10 / 09:10 두 번 시도 (스케줄 지연/누락 대비)
-    - cron: "10 15 * * *"   # 15:10 UTC = 00:10 KST
-    - cron: "10 0 * * *"    # 00:10 UTC = 09:10 KST
-  workflow_dispatch: {}      # 수동 실행 버튼
+    - cron: "10 15 * * *"
+    - cron: "10 0 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
 
 jobs:
   attend:
@@ -28,3 +29,13 @@ jobs:
           GAMEZONE_ID: ${{ secrets.GAMEZONE_ID }}
           GAMEZONE_PW: ${{ secrets.GAMEZONE_PW }}
         run: python attend.py
+
+      - name: Keep-alive 커밋
+        if: always()
+        run: |
+          echo "Last run (UTC): $(date -u)" > keep_alive.txt
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add keep_alive.txt
+          git diff --cached --quiet || git commit -m "keep-alive: $(date -u +%Y-%m-%d)"
+          git push
